@@ -1,6 +1,13 @@
 rootProject.name = "morphe-patches"
 
 pluginManagement {
+    // Prefer the exact local plugin source when it is checked out next to this repository.
+    // This keeps local development independent from GitHub Packages credentials.
+    val localPlugin = settingsDir.parentFile.resolve("morphe-patches-gradle-plugin")
+    if (localPlugin.isDirectory) {
+        includeBuild(localPlugin.absolutePath)
+    }
+
     repositories {
         mavenLocal()
         gradlePluginPortal()
