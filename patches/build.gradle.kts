@@ -4,12 +4,12 @@ group = "app.morphe"
 
 patches {
     about {
-        name = "Morphe Patches"
-        description = "Patches for Morphe"
-        source = "git@github.com:MorpheApp/morphe-patches.git"
-        author = "MorpheApp"
-        contact = "na"
-        website = "https://morphe.software"
+        name = "Niconico YT Integration Test"
+        description = "Personal test bundle of Niconico comments integrated with the upstream patches"
+        source = "https://github.com/david419kr/morphe-patches"
+        author = "MorpheApp, david419kr"
+        contact = "https://github.com/david419kr"
+        website = "https://github.com/david419kr/morphe-patches"
         license = "GNU General Public License v3.0, with additional GPL section 7 requirements"
     }
 }
