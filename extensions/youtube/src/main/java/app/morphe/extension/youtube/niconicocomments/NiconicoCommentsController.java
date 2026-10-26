@@ -69,13 +69,15 @@ public final class NiconicoCommentsController {
                         List<NiconicoComment> comments,
                         long liveSpreadWindowMs
                 ) {
-                    if (!commentsEnabled || !videoId.equals(currentVideoId)) {
+                    if (!commentsEnabled || !videoId.equals(currentVideoId)
+                            || !shouldAcceptComments(liveSpreadWindowMs, videoPlaying, playerVisible)) {
                         return;
                     }
                     NiconicoCommentsOverlayView view = overlayViewRef.get();
                     if (view != null) {
                         view.post(() -> {
-                            if (commentsEnabled && videoId.equals(currentVideoId)) {
+                            if (commentsEnabled && videoId.equals(currentVideoId)
+                                    && shouldAcceptComments(liveSpreadWindowMs, videoPlaying, playerVisible)) {
                                 view.addComments(comments, liveSpreadWindowMs);
                             }
                         });
@@ -95,6 +97,11 @@ public final class NiconicoCommentsController {
             };
 
     private NiconicoCommentsController() {
+    }
+
+    static boolean shouldAcceptComments(long liveSpreadWindowMs, boolean playing, boolean visible) {
+        // Replay uses zero and must retain lookahead even while paused or minimized.
+        return liveSpreadWindowMs <= 0 || (playing && visible);
     }
 
     /** Injection point called when YouTube creates its player overlay. */

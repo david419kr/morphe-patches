@@ -27,6 +27,7 @@ final class YoutubeChatSource implements Runnable {
     interface Listener {
         long getVideoTimeMs();
 
+        /** Positive spread for live batches; zero for replay lookahead. */
         void onComments(
                 String videoId,
                 List<NiconicoComment> comments,
