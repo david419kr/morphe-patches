@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.49.0-niconico.1",
+  "version": "1.49.0-niconico.2",
   "patches": [
     {
       "name": "AI channel filter",
@@ -8812,6 +8812,13 @@
           ],
           "formFactor": "MOBILE",
           "targets": [
+            {
+              "version": "21.23.492",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": 28,
+              "description": null
+            },
             {
               "version": "21.20.405",
               "versionCodes": null,

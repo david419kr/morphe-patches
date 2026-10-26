@@ -21,12 +21,12 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.1**.
+   **1.49.0-niconico.2**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
    copies of them from other sources.
-5. Select YouTube and provide the unmodified **21.20.405 APK**.
+5. Select YouTube and provide the unmodified **21.23.492 APK** (21.20.405 is also declared compatible).
 6. Keep the test source's recommended patches enabled, and manually enable
    **Niconico-style live/replay comments (Experimental)**.
 7. Patch and install. The `弾` player button toggles comments; long-press it to
@@ -35,7 +35,9 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 When returning to normal patching, disable this test source and re-enable the
 official and standalone sources.
 
-The new Niconico patch is initially declared compatible only with YouTube
-21.20.405. Other upstream app targets do not imply Niconico compatibility.
-Device playback has not yet been verified for this integration. Private,
+The Niconico patch is declared compatible with YouTube 21.20.405 and 21.23.492.
+21.04.223 passed PC patch/rebuild tests but is not added to the compatibility list.
+Other upstream app targets do not imply Niconico compatibility.
+The earlier test build was reported working on 21.23.492; the new settings migration
+and localization changes still need device testing. Private,
 members-only, age-restricted, and other chat requiring sign-in is unsupported.
