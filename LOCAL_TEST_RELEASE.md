@@ -21,14 +21,14 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.3**.
+   **1.49.0-niconico.4**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
    copies of them from other sources.
 5. Select YouTube and provide the unmodified **21.23.492 APK** (21.20.405 is also declared compatible).
 6. Keep the test source's recommended patches enabled, and manually enable
-   **Niconico-style live/replay comments (Experimental)**.
+   **Niconico-style live/replay comments**.
 7. Patch and install. The `弾` player button toggles comments; long-press it to
    change the font size and opacity.
 
@@ -38,7 +38,8 @@ official and standalone sources.
 The Niconico patch is declared compatible with YouTube 21.20.405 and 21.23.492.
 21.04.223 passed PC patch/rebuild tests but is not added to the compatibility list.
 Other upstream app targets do not imply Niconico compatibility.
-Test build .2, including settings migration and localization, was reported working
-on 21.23.492. Test build .3 adds bounded live buffering and emoji work; busy-chat
-pause/resume and emoji stress behavior still need device testing. Private,
+Test build .3, including settings migration, localization, bounded live buffering,
+and bounded emoji work, was reported working on 21.23.492. Test build .4 removes
+only the Experimental suffix from the patch name. Long-running busy-chat and
+emoji stress behavior has not been separately verified. Private,
 members-only, age-restricted, and other chat requiring sign-in is unsupported.

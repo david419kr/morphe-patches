@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.49.0-niconico.3",
+  "version": "1.49.0-niconico.4",
   "patches": [
     {
       "name": "AI channel filter",
@@ -8795,7 +8795,7 @@
       "options": []
     },
     {
-      "name": "Niconico-style live/replay comments (Experimental)",
+      "name": "Niconico-style live/replay comments",
       "description": "Adds public live/replay chat overlays and a player on/off button.",
       "default": false,
       "category": null,
