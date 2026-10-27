@@ -1,9 +1,11 @@
 # Niconico YT Integration Test
 
-This fork is a personal testing build based on MorpheApp/morphe-patches `dev`
-at `c5f9f94ee71a480be00a432ee364f4e7099b9537`, with Niconico live/replay comments
-integrated into the upstream patch and extension modules. It is not an official
-Morphe release. No upstream pull request has been opened.
+This fork is a personal test distribution of the current code in
+[MorpheApp/morphe-patches PR #4080](https://github.com/MorpheApp/morphe-patches/pull/4080),
+locked to commit `81d8b03d6c22af1a0bfc30f2f78c1608827d7ee9`.
+It includes the maintainer's changes and is not an official Morphe release.
+Only distribution branding, version, documentation, generated listing, source
+metadata, and excluded release workflows differ from that PR snapshot.
 
 The clean integration is kept on `codex/niconico-comments-integration`.
 The personal distribution branch is `codex/niconico-personal-test`, published
@@ -21,25 +23,28 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.4**.
+   **1.49.0-niconico.5**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
    copies of them from other sources.
 5. Select YouTube and provide the unmodified **21.23.492 APK** (21.20.405 is also declared compatible).
-6. Keep the test source's recommended patches enabled, and manually enable
-   **Niconico-style live/replay comments**.
-7. Patch and install. The `弾` player button toggles comments; long-press it to
-   change the font size and opacity.
+6. Keep the recommended patches enabled and confirm **Niconico comments** is
+   selected. The maintainer changed this patch to be included by default.
+7. Patch and install. In YouTube open **Morphe settings → Player → Niconico comments**,
+   enable the feature, and restart the app. The feature itself defaults to OFF.
+8. Tap the new comments player icon to show/hide comments. Long-press it to adjust
+   font size, opacity, travel duration, and maximum comment length.
 
 When returning to normal patching, disable this test source and re-enable the
 official and standalone sources.
 
-The Niconico patch is declared compatible with YouTube 21.20.405 and 21.23.492.
-21.04.223 passed PC patch/rebuild tests but is not added to the compatibility list.
-Other upstream app targets do not imply Niconico compatibility.
-Test build .3, including settings migration, localization, bounded live buffering,
-and bounded emoji work, was reported working on 21.23.492. Test build .4 removes
-only the Experimental suffix from the patch name. Long-running busy-chat and
-emoji stress behavior has not been separately verified. Private,
-members-only, age-restricted, and other chat requiring sign-in is unsupported.
+The maintainer now declares the Niconico patch compatible with all official
+YouTube targets. This is a declaration, not evidence that every version has been
+tested on a device. Compare this build with your previous test on 21.23.492 first.
+
+This PR snapshot has not yet had user device verification. Check public live chat,
+replay/premiere chat, seeking, speed changes, pause/resume, rotation, the new icon,
+and all four quick settings sliders. Do not report an OK to the maintainer until
+the user has tested this version. Private, members-only, age-restricted, and other
+chat requiring sign-in is unsupported.

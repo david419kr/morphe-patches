@@ -1,15 +1,25 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/4080
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ * 
+ * Niconico-style live/replay comments implementation is adapted from
+ * https://github.com/david419kr/niconico-yt-morphe-patches (GPLv3)
+ * Feature design is based on david419kr/niconico-yt (MIT License)
+ */
+
 package app.morphe.extension.youtube.niconicocomments;
+
+import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -21,9 +31,12 @@ import java.util.Locale;
 import java.util.Set;
 
 import app.morphe.extension.shared.Logger;
+import app.morphe.extension.shared.requests.Requester;
 
-/** Fetches public YouTube live and replay chat without another Morphe patch bundle. */
-final class YoutubeChatSource implements Runnable {
+/**
+ * Fetches the public live chat or chat replay of a video.
+ */
+final class YouTubeChatSource implements Runnable {
     interface Listener {
         long getVideoTimeMs();
 
@@ -55,7 +68,6 @@ final class YoutubeChatSource implements Runnable {
     private static final int REPLAY_MAX_FETCHES_PER_UPDATE = 12;
     private static final int MAX_COMMENT_LENGTH = 200;
     private static final int MAX_SEEN_IDS = 4_096;
-    private static final int MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
 
     private final String videoId;
     private final Listener listener;
@@ -63,9 +75,10 @@ final class YoutubeChatSource implements Runnable {
     private final ArrayDeque<String> seenIdOrder = new ArrayDeque<>();
 
     private volatile boolean stopped;
+    @Nullable
     private volatile HttpURLConnection activeConnection;
 
-    YoutubeChatSource(String videoId, Listener listener) {
+    YouTubeChatSource(String videoId, Listener listener) {
         this.videoId = videoId;
         this.listener = listener;
     }
@@ -501,11 +514,11 @@ final class YoutubeChatSource implements Runnable {
 
     private String request(
             String url,
-            String requestBody,
-            String clientVersion,
-            String visitorData
+            @Nullable String requestBody,
+            @Nullable String clientVersion,
+            @Nullable String visitorData
     ) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection connection = Requester.openConnection(url);
         activeConnection = connection;
         try {
             connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
@@ -532,32 +545,16 @@ final class YoutubeChatSource implements Runnable {
                 }
             }
 
-            int status = connection.getResponseCode();
+            final int status = connection.getResponseCode();
             if (status != HttpURLConnection.HTTP_OK) {
+                connection.disconnect();
                 throw new IOException("YouTube returned HTTP " + status);
             }
-            try (InputStream input = connection.getInputStream()) {
-                return readUtf8(input);
-            }
+            // Not disconnected, so the live chat polling can reuse the connection.
+            return Requester.parseString(connection);
         } finally {
             activeConnection = null;
-            connection.disconnect();
         }
-    }
-
-    private static String readUtf8(InputStream input) throws IOException {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8_192];
-        int total = 0;
-        int read;
-        while ((read = input.read(buffer)) >= 0) {
-            total += read;
-            if (total > MAX_RESPONSE_BYTES) {
-                throw new IOException("YouTube response exceeded " + MAX_RESPONSE_BYTES + " bytes");
-            }
-            output.write(buffer, 0, read);
-        }
-        return output.toString(StandardCharsets.UTF_8.name());
     }
 
     private List<NiconicoComment> deduplicate(List<NiconicoComment> comments) {
@@ -647,7 +644,8 @@ final class YoutubeChatSource implements Runnable {
                 if (depth == 0) {
                     try {
                         return new JSONObject(text.substring(start, index + 1));
-                    } catch (JSONException ignored) {
+                    } catch (JSONException ex) {
+                        Logger.printInfo(() -> "Could not parse embedded JSON", ex);
                         return null;
                     }
                 }
@@ -820,12 +818,8 @@ final class YoutubeChatSource implements Runnable {
                 continue;
             }
 
-            long rawOffsetMs;
-            try {
-                rawOffsetMs = Long.parseLong(replayAction.getString("videoOffsetTimeMsec"));
-            } catch (Exception ignored) {
-                continue;
-            }
+            // The offset is a numeric string. Missing values are -1.
+            final long rawOffsetMs = replayAction.optLong("videoOffsetTimeMsec", -1);
             if (rawOffsetMs < 0) {
                 continue;
             }
@@ -859,7 +853,7 @@ final class YoutubeChatSource implements Runnable {
             return false;
         }
         String timestampText = extractText(renderer.optJSONObject("timestampText")).trim();
-        return timestampText.startsWith("-") || timestampText.startsWith("\u2212");
+        return timestampText.startsWith("-") || timestampText.startsWith("−");
     }
 
     private static NiconicoComment parseComment(JSONObject item, long videoOffsetMs) {
@@ -1050,7 +1044,8 @@ final class YoutubeChatSource implements Runnable {
         }
         try {
             Thread.sleep(milliseconds);
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException ex) {
+            // Interrupted by stop().
             Thread.currentThread().interrupt();
             stopped = true;
         }

@@ -1,184 +1,192 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/4080
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ * 
+ * Niconico-style live/replay comments implementation is adapted from
+ * https://github.com/david419kr/niconico-yt-morphe-patches (GPLv3)
+ * Feature design is based on david419kr/niconico-yt (MIT License)
+ */
+
 package app.morphe.extension.youtube.niconicocomments;
 
 import static app.morphe.extension.shared.StringRef.str;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Typeface;
-import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 
 import app.morphe.extension.shared.Logger;
+import app.morphe.extension.shared.Utils;
+import app.morphe.extension.shared.theme.ThemeUtils;
+import app.morphe.extension.shared.ui.Dim;
+import app.morphe.extension.shared.ui.SheetBottomDialog;
+import app.morphe.extension.youtube.patches.LegacyPlayerControlsPatch;
+import app.morphe.extension.youtube.settings.Settings;
+import app.morphe.extension.youtube.shared.PipDismissHelper;
+import app.morphe.extension.youtube.videoplayer.LegacyPlayerControlButton;
+import app.morphe.extension.youtube.videoplayer.PlayerIcons;
 import app.morphe.extension.youtube.videoplayer.PlayerOverlayButton;
 
-/** Adds a persistent on/off control beside Morphe's lower-right player buttons. */
+/**
+ * Player button that shows or hides the comments. Tap and hold opens the quick settings.
+ */
+@SuppressWarnings("unused")
 public final class NiconicoCommentsToggleButton {
-    private static final int ENABLED_COLOR = 0xffffffff;
-    private static final int DISABLED_COLOR = 0x66ffffff;
 
-    private static WeakReference<View> sourceButtonRef = new WeakReference<>(null);
-    private static WeakReference<TextView> buttonRef = new WeakReference<>(null);
+    @Nullable
+    private static LegacyPlayerControlButton legacy;
+
+    private static WeakReference<ImageView> overlayButtonRef = new WeakReference<>(null);
 
     private NiconicoCommentsToggleButton() {
     }
 
-    /** Injection point called with YouTube's fullscreen button as the layout/style anchor. */
-    public static void initializeButton(View sourceButton) {
-        if (sourceButton == null) {
-            return;
-        }
+    /**
+     * Injection point.
+     */
+    public static void initializeButton(View controlsView) {
         try {
-            TextView existing = buttonRef.get();
-            if (sourceButtonRef.get() == sourceButton
-                    && existing != null
-                    && existing.isAttachedToWindow()) {
-                updateState(existing);
+            if (LegacyPlayerControlsPatch.RESTORE_OLD_PLAYER_BUTTONS || !Settings.NICONICO_COMMENTS.get()) {
                 return;
             }
 
-            NiconicoCommentsController.loadPreference(sourceButton.getContext());
-            View.OnClickListener clickListener = view -> {
-                NiconicoCommentsController.toggleCommentsEnabled(view.getContext());
-                updateState((TextView) view);
-            };
-            View.OnLongClickListener longClickListener = view -> {
-                showSettingsDialog(view);
-                return true;
-            };
-
-            TextView button = PlayerOverlayButton.addButtonWithTextOverlay(
-                    sourceButton,
-                    clickListener,
-                    longClickListener
+            ImageView button = PlayerOverlayButton.addButton(
+                    controlsView,
+                    PlayerIcons.name(getIconBaseName()),
+                    getOnClickListener(),
+                    getOnLongClickListener()
             );
-            if (button == null) {
-                return;
+            if (button != null) {
+                button.setContentDescription(str("morphe_niconico_comments_screen_title"));
+                PlayerOverlayButton.setToggleAccessibilityDelegate(
+                        button, Settings.NICONICO_COMMENTS_SHOWN::get);
             }
-
-            configureButton(button);
-            sourceButtonRef = new WeakReference<>(sourceButton);
-            buttonRef = new WeakReference<>(button);
-        } catch (Exception exception) {
-            Logger.printException(() -> "Niconico toggle button initialization failed", exception);
+            overlayButtonRef = new WeakReference<>(button);
+        } catch (Exception ex) {
+            Logger.printException(() -> "initializeButton failure", ex);
         }
     }
 
-    private static void configureButton(TextView button) {
-        button.setText("弾");
-        button.setTextSize(14);
-        button.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        button.setGravity(Gravity.CENTER);
-        button.setIncludeFontPadding(false);
-        updateState(button);
+    /**
+     * Injection point.
+     */
+    public static void initializeLegacyButton(View controlsView) {
+        try {
+            if (!LegacyPlayerControlsPatch.RESTORE_OLD_PLAYER_BUTTONS) {
+                return;
+            }
+
+            legacy = new LegacyPlayerControlButton(
+                    controlsView,
+                    "morphe_niconico_comments_button",
+                    null,
+                    PlayerIcons.name(getIconBaseName()),
+                    Settings.NICONICO_COMMENTS,
+                    getOnClickListener(),
+                    getOnLongClickListener()
+            );
+            View legacyButton = Utils.getChildViewByResourceName(controlsView, "morphe_niconico_comments_button");
+            PlayerOverlayButton.setToggleAccessibilityDelegate(
+                    legacyButton, Settings.NICONICO_COMMENTS_SHOWN::get);
+        } catch (Exception ex) {
+            Logger.printException(() -> "initializeLegacyButton failure", ex);
+        }
     }
 
-    @SuppressLint("SetTextI18n")
-    private static void showSettingsDialog(View anchor) {
-        Context context = anchor.getContext();
-        int currentSize = NiconicoCommentsController.getCommentFontSizeSp(context);
-        int currentOpacity = NiconicoCommentsController.getCommentOpacityPercent(context);
-        int[] selectedSize = {currentSize};
-        int[] selectedOpacity = {currentOpacity};
-        int densityPadding = Math.round(24 * context.getResources().getDisplayMetrics().density);
-
-        LinearLayout content = new LinearLayout(context);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(densityPadding, densityPadding / 2, densityPadding, 0);
-
-        TextView value = new TextView(context);
-        value.setTextSize(16);
-        value.setText(str("morphe_niconico_font_size_value", currentSize));
-        content.addView(value);
-
-        SeekBar slider = new SeekBar(context);
-        slider.setMax(
-                NiconicoCommentsController.MAX_FONT_SIZE_SP
-                        - NiconicoCommentsController.MIN_FONT_SIZE_SP
-        );
-        slider.setProgress(currentSize - NiconicoCommentsController.MIN_FONT_SIZE_SP);
-        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                selectedSize[0] = NiconicoCommentsController.MIN_FONT_SIZE_SP + progress;
-                value.setText(str("morphe_niconico_font_size_value", selectedSize[0]));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-        content.addView(slider);
-
-        TextView opacityValue = new TextView(context);
-        opacityValue.setTextSize(16);
-        opacityValue.setText(str("morphe_niconico_opacity_value", currentOpacity));
-        content.addView(opacityValue);
-
-        SeekBar opacitySlider = new SeekBar(context);
-        opacitySlider.setMax(
-                NiconicoCommentsController.MAX_OPACITY_PERCENT
-                        - NiconicoCommentsController.MIN_OPACITY_PERCENT
-        );
-        opacitySlider.setProgress(
-                currentOpacity - NiconicoCommentsController.MIN_OPACITY_PERCENT
-        );
-        opacitySlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                selectedOpacity[0] = NiconicoCommentsController.MIN_OPACITY_PERCENT + progress;
-                opacityValue.setText(str("morphe_niconico_opacity_value", selectedOpacity[0]));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-        content.addView(opacitySlider);
-
-        new AlertDialog.Builder(context)
-                .setTitle(str("morphe_niconico_quick_settings_title"))
-                .setView(content)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(
-                        str("morphe_niconico_save"),
-                        (dialog, which) -> {
-                            NiconicoCommentsController.setCommentFontSizeSp(
-                                    context,
-                                    selectedSize[0]
-                            );
-                            NiconicoCommentsController.setCommentOpacityPercent(
-                                    context,
-                                    selectedOpacity[0]
-                            );
-                        }
-                )
-                .show();
+    private static View.OnClickListener getOnClickListener() {
+        return view -> {
+            NiconicoCommentsController.toggleCommentsShown();
+            updateButtonIcon();
+        };
     }
 
-    private static void updateState(TextView button) {
-        boolean enabled = NiconicoCommentsController.isCommentsEnabled();
-        button.setTextColor(enabled ? ENABLED_COLOR : DISABLED_COLOR);
-        String state = str(enabled ? "morphe_niconico_button_on" : "morphe_niconico_button_off");
-        button.setContentDescription(state);
-        button.setTooltipText(state);
+    private static View.OnLongClickListener getOnLongClickListener() {
+        return view -> {
+            showQuickSettings(view.getContext());
+            return true;
+        };
     }
 
-    static void refreshState() {
-        TextView button = buttonRef.get();
-        if (button != null) button.post(() -> updateState(button));
+    private static void updateButtonIcon() {
+        Utils.verifyOnMainThread();
+
+        final int icon = PlayerIcons.id(getIconBaseName());
+
+        ImageView overlayButton = overlayButtonRef.get();
+        if (overlayButton != null) {
+            overlayButton.setImageResource(icon);
+        }
+
+        if (legacy != null) {
+            legacy.setIcon(icon);
+        }
+    }
+
+    private static String getIconBaseName() {
+        return Settings.NICONICO_COMMENTS_SHOWN.get()
+                ? "morphe_niconico_comments_button_on"
+                : "morphe_niconico_comments_button_off";
+    }
+
+    /**
+     * Shows the font size, opacity, travel duration and max length sliders. Changes apply immediately.
+     */
+    private static void showQuickSettings(Context context) {
+        try {
+            final int foregroundColor = ThemeUtils.getAppForegroundColor();
+
+            SheetBottomDialog.DraggableLinearLayout mainLayout = SheetBottomDialog.createMainLayout(
+                    context, LegacyPlayerControlButton.getDialogBackgroundColor());
+
+            LinearLayout contentLayout = new LinearLayout(context);
+            contentLayout.setOrientation(LinearLayout.VERTICAL);
+            contentLayout.setPadding(Dim.dp16, 0, Dim.dp16, Dim.dp16);
+            contentLayout.addView(SheetBottomDialog.createTitle(context,
+                    str("morphe_niconico_comments_screen_title"), foregroundColor));
+            contentLayout.addView(SheetBottomDialog.createSliderRow(context,
+                    str("morphe_niconico_comments_font_size_title"),
+                    Settings.NICONICO_COMMENTS_FONT_SIZE,
+                    foregroundColor,
+                    value -> {
+                        Settings.NICONICO_COMMENTS_FONT_SIZE.save(value);
+                        NiconicoCommentsController.updateViewState();
+                    }));
+            contentLayout.addView(SheetBottomDialog.createSliderRow(context,
+                    str("morphe_niconico_comments_opacity_title"),
+                    Settings.NICONICO_COMMENTS_OPACITY,
+                    foregroundColor,
+                    value -> {
+                        Settings.NICONICO_COMMENTS_OPACITY.save(value);
+                        NiconicoCommentsController.updateViewState();
+                    }));
+            contentLayout.addView(SheetBottomDialog.createSliderRow(context,
+                    str("morphe_niconico_comments_travel_duration_title"),
+                    Settings.NICONICO_COMMENTS_TRAVEL_DURATION,
+                    foregroundColor,
+                    value -> {
+                        Settings.NICONICO_COMMENTS_TRAVEL_DURATION.save(value);
+                        NiconicoCommentsController.updateViewState();
+                    }));
+            contentLayout.addView(SheetBottomDialog.createSliderRow(context,
+                    str("morphe_niconico_comments_max_length_title"),
+                    Settings.NICONICO_COMMENTS_MAX_LENGTH,
+                    foregroundColor,
+                    Settings.NICONICO_COMMENTS_MAX_LENGTH::save));
+            mainLayout.addView(contentLayout);
+
+            SheetBottomDialog.SlideDialog dialog = SheetBottomDialog.createSlideDialog(
+                    context, mainLayout, LegacyPlayerControlButton.fadeInDuration);
+            PipDismissHelper.dismissOnPip(dialog);
+            dialog.show();
+        } catch (Exception ex) {
+            Logger.printException(() -> "showQuickSettings failure", ex);
+        }
     }
 }

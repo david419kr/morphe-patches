@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/4080
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ * 
+ * Niconico-style live/replay comments implementation is adapted from
+ * https://github.com/david419kr/niconico-yt-morphe-patches (GPLv3)
+ * Feature design is based on david419kr/niconico-yt (MIT License)
+ */
+
 package app.morphe.extension.youtube.niconicocomments;
 
 import static org.junit.Assert.assertEquals;
@@ -78,17 +89,14 @@ public class EmojiImageCacheTest {
     }
 
     @Test
-    public void ignoresResultsFromAnOldVideoAndCanRetryRejectedTasks() {
+    public void ignoresResultsFromAnOldVideo() {
         EmojiImageCache<String> cache = new EmojiImageCache<>();
         EmojiImageCache.Entry<String> old = cache.beginLoad("emoji", Set.of());
         cache.clear();
         EmojiImageCache.Entry<String> current = cache.beginLoad("emoji", Set.of());
         assertFalse(cache.complete("emoji", old, "old bitmap"));
-        cache.discard("emoji", old);
         assertSame(current, cache.get("emoji"));
-        cache.discard("emoji", current);
-        assertNull(cache.get("emoji"));
-        assertNotNull(cache.beginLoad("emoji", Set.of()));
+        assertNull(current.value);
     }
 
     @Test

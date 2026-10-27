@@ -1,17 +1,26 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/4080
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ * 
+ * Niconico-style live/replay comments implementation is adapted from
+ * https://github.com/david419kr/niconico-yt-morphe-patches (GPLv3)
+ * Feature design is based on david419kr/niconico-yt (MIT License)
+ */
+
 package app.morphe.extension.youtube.niconicocomments;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 /** Pure-Java comment scheduler shared by the Android view and JVM unit tests. */
 final class CommentSchedule {
-    static final long COMMENT_DURATION_MS = 7_000;
     static final int MAX_LIVE_COMMENTS = 512;
 
     private static final long LIVE_SPREAD_MIN_STEP_MS = 35;
@@ -28,6 +37,7 @@ final class CommentSchedule {
     private int shuffledLaneIndex;
     private int lastLane = -1;
     private long nextLiveStartTimeMs = Long.MIN_VALUE;
+    private long commentDurationMs;
 
     CommentSchedule() {
         this(new Random());
@@ -93,12 +103,16 @@ final class CommentSchedule {
     }
 
     void removeExpired(long videoTimeMs) {
-        Iterator<ScheduledComment> iterator = comments.iterator();
-        while (iterator.hasNext()) {
-            if (videoTimeMs - iterator.next().startTimeMs > COMMENT_DURATION_MS) {
-                iterator.remove();
-            }
-        }
+        comments.removeIf(scheduledComment -> videoTimeMs - scheduledComment.startTimeMs > commentDurationMs);
+    }
+
+    /** How long a comment takes to cross the screen. */
+    long getCommentDurationMs() {
+        return commentDurationMs;
+    }
+
+    void setCommentDurationMs(long durationMs) {
+        commentDurationMs = durationMs;
     }
 
     void clear() {

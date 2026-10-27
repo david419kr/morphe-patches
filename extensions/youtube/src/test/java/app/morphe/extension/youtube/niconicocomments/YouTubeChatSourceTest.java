@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/4080
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ * 
+ * Niconico-style live/replay comments implementation is adapted from
+ * https://github.com/david419kr/niconico-yt-morphe-patches (GPLv3)
+ * Feature design is based on david419kr/niconico-yt (MIT License)
+ */
+
 package app.morphe.extension.youtube.niconicocomments;
 
 import static org.junit.Assert.assertEquals;
@@ -11,7 +22,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class YoutubeChatSourceTest {
+public class YouTubeChatSourceTest {
     @Test
     public void parsesWatchPageConfigAndBalancedJson() throws Exception {
         String html = "<script>ytcfg.set({\"INNERTUBE_API_KEY\":\"key\"});"
@@ -19,8 +30,8 @@ public class YoutubeChatSourceTest {
                 + "\"clientName\":\"WEB\",\"clientVersion\":\"1.2.3\"}}});</script>"
                 + "<script>var ytInitialData = {\"text\":\"escaped \\\" } brace\"};</script>";
 
-        JSONObject config = YoutubeChatSource.parseYoutubeConfig(html);
-        JSONObject initialData = YoutubeChatSource.parseMarkedObject(
+        JSONObject config = YouTubeChatSource.parseYoutubeConfig(html);
+        JSONObject initialData = YouTubeChatSource.parseMarkedObject(
                 html,
                 "var ytInitialData ="
         );
@@ -43,7 +54,7 @@ public class YoutubeChatSourceTest {
                         + "\"continuation\":\"next\",\"timeoutMs\":2345}}]}"
         );
 
-        YoutubeChatSource.Continuation continuation = YoutubeChatSource.findContinuation(
+        YouTubeChatSource.Continuation continuation = YouTubeChatSource.findContinuation(
                 value,
                 "timedContinuationData",
                 "invalidationContinuationData"
@@ -68,7 +79,7 @@ public class YoutubeChatSourceTest {
                 + "\"bodyBackgroundColor\":4278255360}}}}"
                 + "]");
 
-        List<NiconicoComment> comments = YoutubeChatSource.parseComments(actions);
+        List<NiconicoComment> comments = YouTubeChatSource.parseComments(actions);
 
         assertEquals(2, comments.size());
         assertEquals("hello :wave:", comments.get(0).text);
@@ -90,8 +101,8 @@ public class YoutubeChatSourceTest {
                 + "\"id\":\"replay\",\"timestampText\":{\"simpleText\":\"0:07\"},"
                 + "\"message\":{\"simpleText\":\"at seven seconds\"}}}}}]}}]");
 
-        YoutubeChatSource.ReplayParseResult result =
-                YoutubeChatSource.parseReplayComments(actions);
+        YouTubeChatSource.ReplayParseResult result =
+                YouTubeChatSource.parseReplayComments(actions);
 
         assertEquals(7_449, result.maxVideoOffsetMs);
         assertEquals(1, result.comments.size());
@@ -111,8 +122,8 @@ public class YoutubeChatSourceTest {
                 + "\"id\":\"zero\",\"timestampText\":{\"simpleText\":\"0:00\"},"
                 + "\"message\":{\"simpleText\":\"at start\"}}}}}]}}]");
 
-        YoutubeChatSource.ReplayParseResult result =
-                YoutubeChatSource.parseReplayComments(actions);
+        YouTubeChatSource.ReplayParseResult result =
+                YouTubeChatSource.parseReplayComments(actions);
 
         assertEquals(0, result.maxVideoOffsetMs);
         assertEquals(1, result.comments.size());
@@ -128,8 +139,8 @@ public class YoutubeChatSourceTest {
                 + "\"id\":\"countdown\",\"timestampText\":{\"simpleText\":\"-1:00:34\"},"
                 + "\"message\":{\"simpleText\":\"before start\"}}}}}]}}]");
 
-        YoutubeChatSource.ReplayParseResult result =
-                YoutubeChatSource.parseReplayComments(actions);
+        YouTubeChatSource.ReplayParseResult result =
+                YouTubeChatSource.parseReplayComments(actions);
 
         assertEquals(0, result.maxVideoOffsetMs);
         assertTrue(result.comments.isEmpty());
@@ -137,9 +148,9 @@ public class YoutubeChatSourceTest {
 
     @Test
     public void clampsLivePollingDelayToARealtimeWindow() {
-        assertEquals(250, YoutubeChatSource.getLivePollDelayMs(0));
-        assertEquals(100, YoutubeChatSource.getLivePollDelayMs(20));
-        assertEquals(175, YoutubeChatSource.getLivePollDelayMs(175));
-        assertEquals(250, YoutubeChatSource.getLivePollDelayMs(5_000));
+        assertEquals(250, YouTubeChatSource.getLivePollDelayMs(0));
+        assertEquals(100, YouTubeChatSource.getLivePollDelayMs(20));
+        assertEquals(175, YouTubeChatSource.getLivePollDelayMs(175));
+        assertEquals(250, YouTubeChatSource.getLivePollDelayMs(5_000));
     }
 }

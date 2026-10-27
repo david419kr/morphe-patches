@@ -13,19 +13,21 @@ This is an independent testing fork, not an official Morphe release.
    https://github.com/david419kr/morphe-patches
    ```
 
-3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.4**을 확인합니다.
+3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.5**를 확인합니다.
 4. 이번 테스트에서는 기존 **Morphe Patches**와 독립 **Niconico YT Comments Patches** 소스를 **Disable**하고, 이 테스트 소스만 켭니다. 공식 패치가 이미 포함돼 있습니다.
 5. 원본 **YouTube 21.23.492 APK** (21.20.405도 선택 가능)를 선택합니다.
-6. 테스트 소스의 권장 패치를 유지하고 **Niconico-style live/replay comments**를 추가로 선택합니다.
-7. 패치 후 설치합니다. 플레이어의 **弾** 버튼을 누르면 댓글을 켜고 끌 수 있고, 길게 누르면 글꼴 크기와 불투명도를 조절할 수 있습니다.
+6. 테스트 소스의 권장 패치에서 **Niconico comments**가 선택돼 있는지 확인합니다. 이번 PR 상태에서는 기본 포함됩니다.
+7. 패치 후 설치하고 **YouTube의 Morphe 설정 → Player → Niconico comments**에서 기능을 켠 뒤 앱을 재시작합니다. 패치 기본 포함과 별개로 기능의 초기값은 OFF입니다.
+8. 플레이어의 새 댓글 아이콘을 누르면 댓글 표시를 켜고 끌 수 있고, 길게 누르면 글꼴 크기·불투명도·이동 시간·최대 댓글 길이를 조절할 수 있습니다.
 
-현재 통합본의 니코니코 패치는 **21.20.405·21.23.492를 지원 대상으로 지정**했습니다. 21.04.223은 PC 패치·재구성 검증에 성공했지만 지원 목록에는 추가하지 않았습니다.
-설정·번역 수정과 라이브 댓글·이모지 작업량 제한이 포함된 .3은 21.23.492 실기기에서 정상 동작한다고 보고받았습니다. .4는 패치 이름에서 Experimental 표시만 제거합니다. 장시간 대량 채팅·이모지 스트레스 테스트는 별도로 확인하지 않았습니다. 비공개·멤버십 전용·연령 제한 등 로그인이 필요한 채팅은 지원하지 않습니다.
+이 버전은 [공식 PR #4080](https://github.com/MorpheApp/morphe-patches/pull/4080)의 **81d8b03d6c22af1a0bfc30f2f78c1608827d7ee9**를 반영한 개인 테스트 배포입니다. 메인테이너가 수정한 기능 코드는 그대로 유지하고 배포용 이름·버전·메타데이터만 별도로 설정했습니다.
+지원 선언은 메인테이너가 공식 YouTube 대상 목록 전체로 확대했습니다. 이는 모든 버전의 실기기 동작을 검증했다는 뜻은 아닙니다. 우선 기존에 사용하던 **21.23.492**로 비교 테스트해 주세요.
+이번 PR 수정 상태는 아직 사용자의 실기기 검증 전입니다. 라이브·다시보기·탐색·배속, 새 아이콘의 토글·길게 누르기, 네 가지 슬라이더, 가로·세로 전환을 확인한 뒤 메인테이너에게 결과를 전달하면 됩니다. 비공개·멤버십 전용·연령 제한 등 로그인이 필요한 채팅은 지원하지 않습니다.
 
 ## Build and release notes
 
 See [LOCAL_TEST_RELEASE.md](LOCAL_TEST_RELEASE.md) for the branch layout and English instructions.
-The clean integration branch is `codex/niconico-comments-integration`; no upstream PR has been opened.
+The upstream PR branch is `codex/niconico-comments-integration`; this test follows the maintainer's current changes in PR #4080 without modifying that branch.
 Releases are manual. This fork's `main/patches-bundle.json` points to the personal test bundle.
 
 The existing standalone [Niconico YT Comments Patches](https://github.com/david419kr/niconico-yt-morphe-patches)

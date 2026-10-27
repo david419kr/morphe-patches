@@ -1,3 +1,14 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/4080
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ *
+ * Niconico-style live/replay comments implementation is adapted from
+ * https://github.com/david419kr/niconico-yt-morphe-patches (GPLv3)
+ * Feature design is based on david419kr/niconico-yt (MIT License)
+ */
+
 package app.morphe.extension.youtube.niconicocomments;
 
 import java.util.ArrayList;
@@ -44,6 +55,17 @@ final class NiconicoComment {
         this.membership = membership;
         this.backgroundColor = backgroundColor;
         this.videoOffsetMs = videoOffsetMs;
+    }
+
+    /**
+     * Number of characters shown, counting each emoji image as one character.
+     */
+    int length() {
+        int length = 0;
+        for (Segment segment : segments) {
+            length += segment.isEmoji() ? 1 : segment.text.codePointCount(0, segment.text.length());
+        }
+        return length;
     }
 
     static final class Segment {
