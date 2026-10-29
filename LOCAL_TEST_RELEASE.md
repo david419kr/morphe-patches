@@ -1,5 +1,12 @@
 # Niconico YT Integration Test
 
+## Experimental tablet feed fix: 1.49.0-niconico.7
+
+Select **Fix tablet home feed layout (experimental)** when patching. It adjusts the
+full-span decision only for recognized home-feed video and shelf templates on large
+screens and preserves the original decision for unknown templates. The fix and
+**Feed layout diagnostics** are independent optional patches. Device verification is pending.
+
 ## Feed layout diagnostics: 1.49.0-niconico.6
 
 Update the existing source at `https://github.com/david419kr/morphe-patches`, and select
@@ -31,7 +38,7 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.6**.
+   **1.49.0-niconico.7**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
