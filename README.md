@@ -1,5 +1,23 @@
 # Niconico YT Integration Test
 
+## Feed layout diagnostics (1.49.0-niconico.6)
+
+This personal build adds the optional **Feed layout diagnostics** patch for investigating
+tablet feed layout problems. Update the existing source URL, select this patch in Morphe,
+and apply the bundle to an unmodified supported YouTube APK. The diagnostic patch depends
+on **Feed card layout** and is not selected by default. It does not fix the layout.
+
+Once the patched app is running, record logcat while reproducing the problem:
+
+```text
+adb -s 127.0.0.1:17555 logcat -v threadtime -s MorpheFeedDiag:I *:S
+```
+
+The log contains view identities, grid/layout-parameter integer fields, and item positions
+and dimensions; it does not intentionally record video titles, channel names, or account
+information. The field names are obfuscated and must be interpreted against the tested APK.
+Remove the diagnostic patch when building a normal APK to stop diagnostic collection.
+
 Personal test build of Niconico-style live/replay comments integrated with the
 [upstream patches](https://github.com/MorpheApp/morphe-patches).
 This is an independent testing fork, not an official Morphe release.
@@ -13,14 +31,14 @@ This is an independent testing fork, not an official Morphe release.
    https://github.com/david419kr/morphe-patches
    ```
 
-3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.5**를 확인합니다.
+3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.6**를 확인합니다.
 4. 이번 테스트에서는 기존 **Morphe Patches**와 독립 **Niconico YT Comments Patches** 소스를 **Disable**하고, 이 테스트 소스만 켭니다. 공식 패치가 이미 포함돼 있습니다.
 5. 원본 **YouTube 21.23.492 APK** (21.20.405도 선택 가능)를 선택합니다.
 6. 테스트 소스의 권장 패치에서 **Niconico comments**가 선택돼 있는지 확인합니다. 이번 PR 상태에서는 기본 포함됩니다.
 7. 패치 후 설치하고 **YouTube의 Morphe 설정 → Player → Niconico comments**에서 기능을 켠 뒤 앱을 재시작합니다. 패치 기본 포함과 별개로 기능의 초기값은 OFF입니다.
 8. 플레이어의 새 댓글 아이콘을 누르면 댓글 표시를 켜고 끌 수 있고, 길게 누르면 글꼴 크기·불투명도·이동 시간·최대 댓글 길이를 조절할 수 있습니다.
 
-이 버전은 [공식 PR #4080](https://github.com/MorpheApp/morphe-patches/pull/4080)의 **81d8b03d6c22af1a0bfc30f2f78c1608827d7ee9**를 반영한 개인 테스트 배포입니다. 메인테이너가 수정한 기능 코드는 그대로 유지하고 배포용 이름·버전·메타데이터만 별도로 설정했습니다.
+이 버전은 [공식 PR #4080](https://github.com/MorpheApp/morphe-patches/pull/4080)의 **81d8b03d6c22af1a0bfc30f2f78c1608827d7ee9**를 반영하고 선택형 피드 레이아웃 진단 패치를 추가한 개인 테스트 배포입니다.
 지원 선언은 메인테이너가 공식 YouTube 대상 목록 전체로 확대했습니다. 이는 모든 버전의 실기기 동작을 검증했다는 뜻은 아닙니다. 우선 기존에 사용하던 **21.23.492**로 비교 테스트해 주세요.
 이번 PR 수정 상태는 아직 사용자의 실기기 검증 전입니다. 라이브·다시보기·탐색·배속, 새 아이콘의 토글·길게 누르기, 네 가지 슬라이더, 가로·세로 전환을 확인한 뒤 메인테이너에게 결과를 전달하면 됩니다. 비공개·멤버십 전용·연령 제한 등 로그인이 필요한 채팅은 지원하지 않습니다.
 

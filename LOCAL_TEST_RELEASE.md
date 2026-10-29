@@ -1,11 +1,19 @@
 # Niconico YT Integration Test
 
+## Feed layout diagnostics: 1.49.0-niconico.6
+
+Update the existing source at `https://github.com/david419kr/morphe-patches`, and select
+the optional **Feed layout diagnostics** patch when repatching the original YouTube APK.
+The patch includes the existing **Feed card layout** dependency. Capture `MorpheFeedDiag`
+with logcat before and after reproducing the problem; the log contains measurements and
+object identities, not intentionally video titles or account information. This diagnostic
+build does not fix the layout. Rebuild without the optional patch to remove logging.
+
 This fork is a personal test distribution of the current code in
 [MorpheApp/morphe-patches PR #4080](https://github.com/MorpheApp/morphe-patches/pull/4080),
 locked to commit `81d8b03d6c22af1a0bfc30f2f78c1608827d7ee9`.
 It includes the maintainer's changes and is not an official Morphe release.
-Only distribution branding, version, documentation, generated listing, source
-metadata, and excluded release workflows differ from that PR snapshot.
+The personal fork also adds the optional feed layout diagnostics patch.
 
 The clean integration is kept on `codex/niconico-comments-integration`.
 The personal distribution branch is `codex/niconico-personal-test`, published
@@ -23,7 +31,7 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.5**.
+   **1.49.0-niconico.6**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
