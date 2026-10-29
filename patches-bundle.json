@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-29T11:37:07",
-  "description": "# Feed section lifecycle fix 1.49.0-niconico.9\n\nBackports the exact official Morphe fix [6d4315757768d792614915d0867079437505fab9](https://github.com/MorpheApp/morphe-patches/commit/6d4315757768d792614915d0867079437505fab9), which was missing from this fork's frozen PR snapshot.\n\nReleased list sections are removed from the filter registry, preventing an old section from mutating an item list shared with its replacement without updating the replacement's row layout. Grid rows are rebuilt when deletion leaves a nonempty section that is no longer a grid.\n\nThe unsuccessful .7/.8 template and measured-width overrides are removed. Existing optional patch selection remains compatible, but it no longer forces widths. The actual lifecycle fix is automatically part of normal Litho filtering. Keep **Feed layout diagnostics** enabled for comparison, and keep all other selections the same as the previous test.\n\nLocal validation: tests and Android bundle build; patch/rebuild checks on original YouTube 21.20.405 and 21.23.492; generated release/unregister and row-rebuild calls inspected in the resulting DEX. Phone symptom verification remains required.\r\n",
-  "download_url": "https://github.com/david419kr/morphe-patches/releases/download/tablet-feed-lifecycle-20261029.1/patches-1.49.0-niconico.9.mpp",
+  "created_at": "2026-10-29T11:51:16",
+  "description": "# Live feed runtime inspection 1.49.0-niconico.10\n\nAdds the optional **Enable feed runtime inspection** patch. Select it together with **Feed layout diagnostics**, then patch the same original YouTube APK with the existing selections. Android debugger attachment is enabled to inspect the actual render metadata and keyed view tags. No new rendering workaround is included. Debuggable builds may run more slowly; omit this patch from normal builds.\n\nThe upstream lifecycle backport from .9 remains included. Its effectiveness for the reported symptom has not been established; the user reported no improvement. The earlier speculative width overrides remain removed.\r\n",
+  "download_url": "https://github.com/david419kr/morphe-patches/releases/download/feed-runtime-inspection-20261029.1/patches-1.49.0-niconico.10.mpp",
   "signature_download_url": "",
-  "version": "1.49.0-niconico.9"
+  "version": "1.49.0-niconico.10"
 }
