@@ -1,10 +1,17 @@
 package app.morphe.extension.youtube.patches;
 
 import android.content.res.Configuration;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import app.morphe.extension.shared.Utils;
 import app.morphe.extension.youtube.innertube.FeedCardLayoutOuterClass.ComponentType;
@@ -20,6 +27,9 @@ public final class FeedGridFix {
     }
 
     private static final Set<String> logged = new HashSet<>();
+    private static final Map<Class<?>, Field> binderListFields = new ConcurrentHashMap<>();
+    private static final Map<RecyclerView, int[]> feedWidths = new WeakHashMap<>();
+    private static int bindLogs;
 
     public static boolean fullSpan(Object item, boolean original) {
         try {
@@ -72,6 +82,87 @@ public final class FeedGridFix {
     private static void logOnce(String key, String message) {
         synchronized (logged) {
             if (logged.size() < 64 && logged.add(key)) Log.i("MorpheFeedFix", message);
+        }
+    }
+
+    /** Called before a feed item's layout is calculated, while its render information is available. */
+    public static int adjustMeasuredWidth(Object binder, View child, int spec, boolean fullSpan) {
+        try {
+            logOnce("bindHook", "feed measurement hook active");
+            if (binder == null || child == null || Utils.getContext() == null
+                    || Utils.getContext().getResources().getConfiguration().screenWidthDp < 600
+                    || NavigationBar.isSearchBarActive()
+                    || NavigationBar.NavigationButton.getSelectedNavigationButton() != NavigationBar.NavigationButton.HOME
+                    || View.MeasureSpec.getMode(spec) != View.MeasureSpec.EXACTLY) return spec;
+
+            Field field = binderListFields.get(binder.getClass());
+            if (field == null) {
+                for (Field candidate : binder.getClass().getDeclaredFields()) {
+                    if (!Modifier.isStatic(candidate.getModifiers())
+                            && RecyclerView.class.isAssignableFrom(candidate.getType())) {
+                        candidate.setAccessible(true);
+                        binderListFields.put(binder.getClass(), candidate);
+                        field = candidate;
+                        break;
+                    }
+                }
+            }
+            if (field == null) {
+                logOnce("bindListField", "feed measurement binder list field unavailable");
+                return spec;
+            }
+            if (!(field.get(binder) instanceof RecyclerView)) {
+                logOnce("bindDetached", "feed measurement waiting for an attached list");
+                return spec;
+            }
+            RecyclerView list = (RecyclerView) field.get(binder);
+            if (list.getId() == View.NO_ID || !"results".equals(
+                    list.getResources().getResourceEntryName(list.getId()))) return spec;
+            int listWidth = list.getWidth();
+            if (listWidth <= 0) return spec;
+
+            int smallest = Integer.MAX_VALUE, left = Integer.MAX_VALUE, count = 0, full = 0;
+            for (int i = 0; i < list.getChildCount(); i++) {
+                View sibling = list.getChildAt(i);
+                if (sibling == null) continue;
+                int width = sibling.getWidth();
+                if (width * 100L >= listWidth * 25L && width * 100L <= listWidth * 38L) {
+                    smallest = Math.min(smallest, width);
+                    if (sibling.getLeft() >= 0 && sibling.getLeft() < listWidth / 10) {
+                        left = Math.min(left, sibling.getLeft());
+                    }
+                    count++;
+                } else if (width * 100L >= listWidth * 75L && width <= listWidth) {
+                    full = Math.max(full, width);
+                }
+            }
+            int[] sizes;
+            synchronized (feedWidths) {
+                sizes = feedWidths.get(list);
+                if (sizes == null || sizes[0] != listWidth) {
+                    sizes = new int[]{listWidth, 0, 0};
+                    feedWidths.put(list, sizes);
+                }
+                if (count >= 2) {
+                    sizes[1] = smallest;
+                    if (left != Integer.MAX_VALUE) sizes[2] = listWidth - 2 * left;
+                }
+                if (full > 0) sizes[2] = full;
+            }
+
+            int before = View.MeasureSpec.getSize(spec);
+            int after = FeedWidthCorrection.choose(fullSpan, before, listWidth, sizes[1], sizes[2]);
+            synchronized (logged) {
+                if (bindLogs++ < 100 || before != after) {
+                    Log.i("MorpheFeedBind", "view=" + Integer.toHexString(System.identityHashCode(child))
+                            + " full=" + fullSpan + " width=" + before + "->" + after
+                            + " list=" + listWidth + " cell=" + sizes[1] + " wide=" + sizes[2]);
+                }
+            }
+            return after == before ? spec : View.MeasureSpec.makeMeasureSpec(after, View.MeasureSpec.EXACTLY);
+        } catch (Throwable e) {
+            logOnce("bindError:" + e.getClass().getSimpleName(), "bind fallback: " + e.getClass().getSimpleName());
+            return spec;
         }
     }
 }

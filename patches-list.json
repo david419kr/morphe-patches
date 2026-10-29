@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.49.0-niconico.7",
+  "version": "1.49.0-niconico.8",
   "patches": [
     {
       "name": "AI channel filter",
@@ -5293,27 +5293,6 @@
           "formFactor": "MOBILE",
           "targets": [
             {
-              "version": "21.43.523",
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": 29,
-              "description": null
-            },
-            {
-              "version": "21.42.241",
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": 29,
-              "description": null
-            },
-            {
-              "version": "21.28.208",
-              "versionCodes": null,
-              "isExperimental": true,
-              "minSdk": 29,
-              "description": null
-            },
-            {
               "version": "21.23.492",
               "versionCodes": null,
               "isExperimental": false,
@@ -5325,27 +5304,6 @@
               "versionCodes": null,
               "isExperimental": false,
               "minSdk": 28,
-              "description": null
-            },
-            {
-              "version": "21.16.256",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": 28,
-              "description": null
-            },
-            {
-              "version": "20.51.39",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": 28,
-              "description": null
-            },
-            {
-              "version": "20.21.37",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": 26,
               "description": null
             }
           ]
