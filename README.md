@@ -1,12 +1,16 @@
 # Niconico YT Integration Test
 
-## 태블릿 홈 피드 수정 테스트 (1.49.0-niconico.8)
+## Tablet feed lifecycle fix (1.49.0-niconico.9)
 
-Morphe 소스를 업데이트한 뒤 **Fix tablet home feed layout (experimental)**을 직접 선택해
-원본 YouTube APK를 패치하세요. 대화면 홈에서 확인된 3열 피드의 전체 폭 여부와 측정 폭이
-명백히 어긋나면 기존 항목의 측정값을 기준으로 보정합니다. 선택형 진단
-패치 **Feed layout diagnostics**도 함께 사용할 수 있습니다. 이 수정 패치는 YouTube
-21.20.405와 21.23.492에만 표시되며, 실기기 검증 전입니다.
+Backports official Morphe commit `6d4315757768d792614915d0867079437505fab9`.
+Released list sections are unregistered so they cannot mutate a shared item list without
+updating its replacement section. Grid rows are rebuilt when removal changes a grid to
+a single-item section. The unsuccessful .7/.8 width and template overrides are removed.
+
+Update the existing source and repatch the original YouTube APK. The fix is part of the
+normal Litho filtering dependency; the old optional experimental entry remains compatible
+but no longer forces widths. Keep **Feed layout diagnostics** selected for comparison.
+Device verification of this backport is pending.
 
 ## Feed layout diagnostics (1.49.0-niconico.6)
 
@@ -39,7 +43,7 @@ This is an independent testing fork, not an official Morphe release.
    https://github.com/david419kr/morphe-patches
    ```
 
-3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.8**을 확인합니다.
+3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.9**을 확인합니다.
 4. 이번 테스트에서는 기존 **Morphe Patches**와 독립 **Niconico YT Comments Patches** 소스를 **Disable**하고, 이 테스트 소스만 켭니다. 공식 패치가 이미 포함돼 있습니다.
 5. 원본 **YouTube 21.23.492 APK** (21.20.405도 선택 가능)를 선택합니다.
 6. 테스트 소스의 권장 패치에서 **Niconico comments**가 선택돼 있는지 확인합니다. 이번 PR 상태에서는 기본 포함됩니다.

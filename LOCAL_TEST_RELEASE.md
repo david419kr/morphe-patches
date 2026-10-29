@@ -1,12 +1,16 @@
 # Niconico YT Integration Test
 
-## Experimental tablet feed fix: 1.49.0-niconico.8
+## Tablet feed lifecycle fix (1.49.0-niconico.9)
 
-Select **Fix tablet home feed layout (experimental)** when patching. It adjusts the
-full-span decision for recognized templates and corrects clear measurement mismatches
-in observed three-column home feeds. The fix and
-**Feed layout diagnostics** are independent optional patches. The fix is limited to
-YouTube 21.20.405 and 21.23.492; device verification is pending.
+Backports official Morphe commit `6d4315757768d792614915d0867079437505fab9`.
+Released list sections are unregistered so they cannot mutate a shared item list without
+updating its replacement section. Grid rows are rebuilt when removal changes a grid to
+a single-item section. The unsuccessful .7/.8 width and template overrides are removed.
+
+Update the existing source and repatch the original YouTube APK. The fix is part of the
+normal Litho filtering dependency; the old optional experimental entry remains compatible
+but no longer forces widths. Keep **Feed layout diagnostics** selected for comparison.
+Device verification of this backport is pending.
 
 ## Feed layout diagnostics: 1.49.0-niconico.6
 
@@ -39,7 +43,7 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.8**.
+   **1.49.0-niconico.9**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
