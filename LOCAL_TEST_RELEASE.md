@@ -1,13 +1,26 @@
 # Niconico YT Integration Test
 
-## Live runtime inspection (1.49.0-niconico.10)
+## Stale feed binding recovery (1.49.0-niconico.11)
+
+Select **Fix tablet home feed layout (experimental)** and **Feed layout diagnostics**.
+The recovery compares current item metadata with the actual laid-out view. A stable
+full-width/cell-width mismatch in a multi-column feed triggers a native dataset rebind.
+It does not rewrite widths, content, flags or keyed tags. Confirmation and rate limits
+avoid transient loading states and rebind loops. Supported: YouTube 21.20.405 and 21.23.492.
+
+A debugger prototype restored the user's broken live feed with a rebind. The automatic
+prototype also detected and repaired a controlled stale-width injection on-device.
+These validate recovery of the observed state, not elimination of the original YouTube bug.
+The packaged patch still needs phone verification. Runtime inspection is optional.
+
+## Live runtime inspection (1.49.0-niconico.11)
 
 Select **Enable feed runtime inspection** together with **Feed layout diagnostics**.
 This only enables Android debugger attachment; it adds no rendering workaround.
 Android debugging can slow the app and should be omitted from a normal build.
 Keep the same original YouTube APK and other patch selections for comparison.
 
-## Tablet feed lifecycle fix (1.49.0-niconico.10)
+## Tablet feed lifecycle fix (1.49.0-niconico.11)
 
 Backports official Morphe commit `6d4315757768d792614915d0867079437505fab9`.
 Released list sections are unregistered so they cannot mutate a shared item list without
@@ -50,7 +63,7 @@ https://github.com/david419kr/niconico-yt-morphe-patches remains a separate bund
 2. Open **Sources → + → Remote** and add
    `https://github.com/david419kr/morphe-patches`.
 3. Confirm the source is **Niconico YT Integration Test**, version
-   **1.49.0-niconico.10**.
+   **1.49.0-niconico.11**.
 4. For this test, disable the pre-installed **Morphe Patches** source and the
    standalone **Niconico YT Comments Patches** source. Keep this test source enabled.
    This bundle already contains the upstream patches; do not apply duplicate
