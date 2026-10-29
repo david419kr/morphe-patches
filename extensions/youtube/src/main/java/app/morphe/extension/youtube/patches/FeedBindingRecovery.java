@@ -25,6 +25,12 @@ public final class FeedBindingRecovery {
                 : width * 100L > parent * 75L);
     }
 
+    static boolean isCellWidth(int width, int parent) {
+        // Two-column portrait cells are close to half of the viewport width.
+        return width > 0 && parent > 0 && width * 100L >= parent * 20L
+                && width * 100L <= parent * 60L;
+    }
+
     public static void observe(Object object) {
         try {
             if (!(object instanceof Binder)) return;
@@ -62,8 +68,7 @@ public final class FeedBindingRecovery {
                                 int full = data.patch_feedFullSpan(position);
                                 if (full < 0) continue;
                                 int width = child.getWidth();
-                                if (width * 100L >= current.getWidth() * 20L
-                                        && width * 100L <= current.getWidth() * 40L) cells++;
+                                if (isCellWidth(width, current.getWidth())) cells++;
                                 if (wrongSpan(full == 1, width, current.getWidth())) {
                                     mismatch.append(position).append(':').append(full).append(':').append(width).append(';');
                                 }

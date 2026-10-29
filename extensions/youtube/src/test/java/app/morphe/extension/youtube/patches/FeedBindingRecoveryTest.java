@@ -14,4 +14,15 @@ public class FeedBindingRecoveryTest {
         assertFalse(FeedBindingRecovery.wrongSpan(false, 1400, 2160));
         assertFalse(FeedBindingRecovery.wrongSpan(true, 1400, 2160));
     }
+    @Test public void portraitTwoColumnRegression() {
+        assertTrue(FeedBindingRecovery.isCellWidth(753, 1584));
+        assertFalse(FeedBindingRecovery.isCellWidth(1528, 1584));
+        assertTrue(FeedBindingRecovery.wrongSpan(false, 1528, 1584));
+        assertTrue(FeedBindingRecovery.wrongSpan(true, 753, 1584));
+        assertFalse(FeedBindingRecovery.wrongSpan(false, 753, 1584));
+        assertFalse(FeedBindingRecovery.wrongSpan(true, 1528, 1584));
+        assertTrue(FeedBindingRecovery.isCellWidth(687, 2160));
+        assertFalse(FeedBindingRecovery.isCellWidth(0, 1584));
+        assertFalse(FeedBindingRecovery.isCellWidth(753, 0));
+    }
 }
