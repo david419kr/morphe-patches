@@ -1,6 +1,13 @@
 # Niconico YT Integration Test
 
-## Tablet feed lifecycle fix (1.49.0-niconico.9)
+## Live runtime inspection (1.49.0-niconico.10)
+
+Select **Enable feed runtime inspection** together with **Feed layout diagnostics**.
+This only enables Android debugger attachment; it adds no rendering workaround.
+Android debugging can slow the app and should be omitted from a normal build.
+Keep the same original YouTube APK and other patch selections for comparison.
+
+## Tablet feed lifecycle fix (1.49.0-niconico.10)
 
 Backports official Morphe commit `6d4315757768d792614915d0867079437505fab9`.
 Released list sections are unregistered so they cannot mutate a shared item list without
@@ -43,7 +50,7 @@ This is an independent testing fork, not an official Morphe release.
    https://github.com/david419kr/morphe-patches
    ```
 
-3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.9**을 확인합니다.
+3. **Niconico YT Integration Test**, 버전 **1.49.0-niconico.10**을 확인합니다.
 4. 이번 테스트에서는 기존 **Morphe Patches**와 독립 **Niconico YT Comments Patches** 소스를 **Disable**하고, 이 테스트 소스만 켭니다. 공식 패치가 이미 포함돼 있습니다.
 5. 원본 **YouTube 21.23.492 APK** (21.20.405도 선택 가능)를 선택합니다.
 6. 테스트 소스의 권장 패치에서 **Niconico comments**가 선택돼 있는지 확인합니다. 이번 PR 상태에서는 기본 포함됩니다.
