@@ -4,8 +4,8 @@
 
 This personal build adds the optional **Feed layout diagnostics** patch for investigating
 tablet feed layout problems. Update the existing source URL, select this patch in Morphe,
-and apply the bundle to an unmodified supported YouTube APK. The diagnostic patch depends
-on **Feed card layout** and is not selected by default. It does not fix the layout.
+and apply the bundle to an unmodified supported YouTube APK. The diagnostic patch is not
+selected by default and works with or without **Feed card layout**. It does not fix the layout.
 
 Once the patched app is running, record logcat while reproducing the problem:
 

@@ -4,7 +4,7 @@
 
 Update the existing source at `https://github.com/david419kr/morphe-patches`, and select
 the optional **Feed layout diagnostics** patch when repatching the original YouTube APK.
-The patch includes the existing **Feed card layout** dependency. Capture `MorpheFeedDiag`
+The patch works with or without **Feed card layout**. Capture `MorpheFeedDiag`
 with logcat before and after reproducing the problem; the log contains measurements and
 object identities, not intentionally video titles or account information. This diagnostic
 build does not fix the layout. Rebuild without the optional patch to remove logging.
